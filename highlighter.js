@@ -64,7 +64,7 @@
 		// Show harvest functionality in eISSUES site
 		var xhr = new XMLHttpRequest();
 		//var issueId="eIRB_00001650";//TODO: Get from Elliot?
-		var url = "/CustomLayouts/eIssues/IssueDetails?issueId="+issueId
+		var url = "https://resckapp05d.research.chop.edu/eISSUESDev/CustomLayouts/eIssues/IssueDetails?issueId="+issueId
 		xhr.open('GET', url);
 		xhr.onload = function() {
 			if (xhr.status === 200) {
