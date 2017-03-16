@@ -191,6 +191,7 @@ function logSuccess (response) {
 		 ": " + response.notes);
 };
 
+/*
 document.addEventListener('DOMContentLoaded', function(response) {
     getCurrentTabUrl(function(url) {
 	renderStatus('Transmogrifying Harvest Data for ' + url);
@@ -203,6 +204,7 @@ document.addEventListener('DOMContentLoaded', function(response) {
 	    })
     });
 });
+*/
 
 Date.prototype.isLeapYear = function() {
     var year = this.getFullYear();
