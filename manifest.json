@@ -20,7 +20,7 @@
 	}
   ],
   "permissions": [
-      "tabs", "<all_urls>"
+      "tabs", "<all_urls>",
       "activeTab",
       "cookies",
       "http://resckapp05d.research.chop.edu/eISSUESDev/CustomLayouts/eIssues/IssueDetails",
