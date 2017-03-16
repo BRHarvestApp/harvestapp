@@ -3,8 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	if (goToIssuesButton) {
 		goToIssuesButton.addEventListener("click", goToIssuesSite, false);
 	}
-	// TODO: We would like to bind this function to Elliot's menu option
-	//sendIssueDetailAndStartTimer();
 });
 
 function goToIssuesSite() {
