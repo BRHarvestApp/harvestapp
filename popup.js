@@ -39,5 +39,3 @@ function sendIssueDetailAndStartTimer() {
 		console.log(results[0]);
 	});
 }
-
-
