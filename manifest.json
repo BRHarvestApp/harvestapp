@@ -7,10 +7,12 @@
 
   "browser_action": {
     "default_icon": "icon.png",
-    "default_popup": "popup.html"
+    "default_popup": "harvest.html"
   },
   "permissions": [
-    "activeTab",
-    "https://ajax.googleapis.com/"
+      "activeTab",
+      "cookies",
+      "https://badrabbit.harvestapp.com/account/who_am_i"
   ]
 }
+ 
