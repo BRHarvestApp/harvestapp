@@ -61,4 +61,24 @@
 		}
 	});
 	
+function sendIssueDetailAndStartTimer(issueId) {
+	// Show harvest functionality in eISSUES site
+	var xhr = new XMLHttpRequest();
+	//var issueId="eIRB_00001650";//TODO: Get from Elliot?
+	var url = "https://resckapp05d.research.chop.edu/eISSUESDev/CustomLayouts/eIssues/IssueDetails?issueId="+issueId
+	xhr.open('GET', url);
+	xhr.onload = function() {
+		if (xhr.status === 200) {
+			var issueDetail = JSON.parse(xhr.responseText,null,null);
+			 alert(issueDetail.id);
+			 alert(issueDetail.name);
+			// TODO: Raph will be using this information to start / stop timer
+		}
+		else {
+			alert('Request failed.  Returned status of ' + xhr.status);
+		}
+	};
+	xhr.send();
+}
+
 })(jQuery);
