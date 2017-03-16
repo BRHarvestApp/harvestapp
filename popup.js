@@ -25,8 +25,8 @@ function sendIssueDetailAndStartTimer() {
 			xhr.onload = function() {
 				if (xhr.status === 200) {
 					var issueDetail = JSON.parse(xhr.responseText,null,null);
-					alert(issueDetail.id);
-					alert(issueDetail.name);
+					// alert(issueDetail.id);
+					// alert(issueDetail.name);
 					// TODO: Raph will be using this information to start / stop timer
 				}
 				else {
