@@ -1,7 +1,3 @@
-// Copyright (c) 2014 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 var prefixSiteMap = {
     'eISS_':    'eIssues',
     'IT_':      'IT',
@@ -101,7 +97,7 @@ function httpRequest(operation, URL, params) {
 	request.onerror = function() {
 	    // Also deal with the case when the entire request fails to begin with
 	    // This is probably a network error, so reject the promise with an appropriate message
-            reject(Error('There was a network error.'));
+	    reject(Error('There was a network error.'));
 	};
 
 	// Send the request
@@ -111,20 +107,18 @@ function httpRequest(operation, URL, params) {
 
 function renderStatus(statusText) {
     console.log(statusText);
-    document.getElementById('status').textContent = statusText;
+    //document.getElementById('status').textContent = statusText;
 }
 
 // http://resckapp05d.research.chop.edu/eISSUESDev/CustomLayouts/eIssues/IssueDetails
 
-function getHarvestProjects(response) {
+function getHarvestProjects(response, issuePrefix) {
     
     var today = new Date();
 
     return new Promise(function(resolve, reject) {
 
 	var projects = response.projects;
-	
-	var issuePrefix = "eSPA_";
 	
 	var siteName = prefixSiteMap[issuePrefix];
 
@@ -146,7 +140,7 @@ function getHarvestProjects(response) {
 		if(!proj) {
 		    reject(Error("can't find project for projectName " + projectName));
 		} else {
-	    
+		    
 		    var task = proj.tasks.find(function (elt) {
 			return elt.name=="Development";
 		    });
@@ -171,14 +165,14 @@ function getDaily(response) {
 		       null);
 }
 
-function addEntry (parms) {
+function addEntry (parms, notes) {
     var proj_id=parms[0];
     var task_id=parms[1];
     console.log(proj_id + "::" + task_id);
     return httpRequest('POST',
 		       'https://badrabbit.harvestapp.com/daily/add',
 		       JSON.stringify({
-			   "notes": "Add API Test",
+			   "notes": notes,
 			   "project_id": proj_id,
 			   "task_id": task_id
 		       }));
@@ -192,18 +186,18 @@ function logSuccess (response) {
 };
 
 /*
-document.addEventListener('DOMContentLoaded', function(response) {
-    getCurrentTabUrl(function(url) {
-	renderStatus('Transmogrifying Harvest Data for ' + url);
-	httpRequest('GET', 'https://badrabbit.harvestapp.com/account/who_am_i', null)
-	    .then(getDaily)
-	    .then(getHarvestProjects)
-	    .then(addEntry)
-	    .then(logSuccess, function(error) {
-		renderStatus('Error: ' + error.message);
-	    })
-    });
-});
+  document.addEventListener('DOMContentLoaded', function(response) {
+  getCurrentTabUrl(function(url) {
+  renderStatus('Transmogrifying Harvest Data for ' + url);
+  httpRequest('GET', 'https://badrabbit.harvestapp.com/account/who_am_i', null)
+  .then(getDaily)
+  .then(getHarvestProjects)
+  .then(addEntry)
+  .then(logSuccess, function(error) {
+  renderStatus('Error: ' + error.message);
+  })
+  });
+  });
 */
 
 Date.prototype.isLeapYear = function() {
@@ -221,3 +215,4 @@ Date.prototype.getDOY = function() {
     if(mn > 1 && this.isLeapYear()) dayOfYear++;
     return dayOfYear;
 };
+
