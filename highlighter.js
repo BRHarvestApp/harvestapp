@@ -112,21 +112,18 @@
 
     function renderStatus(statusText) {
 	console.log(statusText);
-	document.getElementById('status').textContent = statusText;
+	//document.getElementById('status').textContent = statusText;
     }
 
     // http://resckapp05d.research.chop.edu/eISSUESDev/CustomLayouts/eIssues/IssueDetails
 
-    function getHarvestProjects(response, issueId) {
+    function getHarvestProjects(response, issuePrefix) {
 	
 	var today = new Date();
 
 	return new Promise(function(resolve, reject) {
 
 	    var projects = response.projects;
-
-	    
-	    var issuePrefix = "eSPA_";
 	    
 	    var siteName = prefixSiteMap[issuePrefix];
 
@@ -180,7 +177,7 @@
 	return httpRequest('POST',
 			   'https://badrabbit.harvestapp.com/daily/add',
 			   JSON.stringify({
-			       "notes": "Add API Test",
+			       "notes": notes,
 			       "project_id": proj_id,
 			       "task_id": task_id
 			   }));
@@ -298,20 +295,22 @@
 	xhr.onload = function() {
 	    if (xhr.status === 200) {
 		var issueDetail = JSON.parse(xhr.responseText,null,null);
-		alert(issueDetail.id);
-		alert(issueDetail.name);
+		//alert(issueDetail.id);
+		//alert(issueDetail.name);
 		renderStatus('Transmogrifying Harvest Data for ' + issueDetail.id);
 
 		var issPrefix = issueDetail.id.split("_")[0]+"_";
 		var issNotes = issueDetail.id + ": [" + issueDetail.name + "]";
+
+		console.log("Running Add for " + issPrefix + ": " + issNotes);
 		
 		httpRequest('GET', 'https://badrabbit.harvestapp.com/account/who_am_i', null)
 		    .then(getDaily)
 		    .then(function (response) {
-			return getHarvestProjects(response, issueId);
+			return getHarvestProjects(response, issPrefix);
 		    })
 		    .then(function (parms) {
-			return addEntry (parms, notes);
+			return addEntry (parms, issNotes);
 		    })
 		    .then(logSuccess, function(error) {
 			renderStatus('Error: ' + error.message);
