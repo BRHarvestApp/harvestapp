@@ -26,6 +26,7 @@
 	
 	$("#start_work").click(function(e){
 		var id = $(this).attr("issueId");
+		sendIssueDetailAndStartTimer(id);
 	});
 	
 	$(".issue").contextmenu(function(e){

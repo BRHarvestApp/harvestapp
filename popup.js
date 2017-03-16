@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		goToIssuesButton.addEventListener("click", goToIssuesSite, false);
 	}
 	// TODO: We would like to bind this function to Elliot's menu option
-	sendIssueDetailAndStartTimer();
+	//sendIssueDetailAndStartTimer();
 });
 
 function goToIssuesSite() {
@@ -13,13 +13,13 @@ function goToIssuesSite() {
 	});
 }
 
-function sendIssueDetailAndStartTimer() {
+function sendIssueDetailAndStartTimer(issueId) {
 	// Show harvest functionality in eISSUES site
 	console.log(chrome.tabs)
 	chrome.tabs.executeScript({
 		code: '(' + function(){
 			var xhr = new XMLHttpRequest();
-			var issueId="eIRB_00001650";//TODO: Get from Elliot?
+			//var issueId="eIRB_00001650";//TODO: Get from Elliot?
 			var url = "https://resckapp05d.research.chop.edu/eISSUESDev/CustomLayouts/eIssues/IssueDetails?issueId="+issueId
 			xhr.open('GET', url);
 			xhr.onload = function() {
