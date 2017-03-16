@@ -42,11 +42,10 @@
 	
 	$(document).on("click contextmenu", function(e){
 		var $target = $(e.target);
-		if( !$target.is("#start_work") && !$target.is(".issue") && !$target.is(".message_body") )
-		{
+		if( e.type === 'click' || $("start_work").is(":visible") ){
 			$("#start_work").removeAttr("issueId");
 			$("#start_work").hide();
-		} else if( $target.is(".message_body") && e.type === "contextmenu" ){
+		} else if( e.type === "contextmenu" && !$target.is(".issue") ){
 			var targetText = $target.html();
 			var ids = targetText.match(/[e|T]\w+_\d{8}/g);
 			if( ids && ids.length > 0 )
@@ -72,6 +71,7 @@
 				var issueDetail = JSON.parse(xhr.responseText,null,null);
 				 alert(issueDetail.id);
 				 alert(issueDetail.name);
+
 				// TODO: Raph will be using this information to start / stop timer
 			}
 			else {
@@ -80,5 +80,4 @@
 		};
 		xhr.send();
 	}
-
 })(jQuery);
