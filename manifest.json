@@ -12,6 +12,7 @@
   "permissions": [
       "activeTab",
       "cookies",
+      "http://resckapp05d.research.chop.edu/eISSUESDev/CustomLayouts/eIssues/IssueDetails",
       "https://badrabbit.harvestapp.com/account/who_am_i"
   ]
 }

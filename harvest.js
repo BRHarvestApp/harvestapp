@@ -2,16 +2,39 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/**
- * Get the current URL.
- *
- * @param {function(string)} callback - called when the URL of the current tab
- *   is found.
- */
+var prefixSiteMap = {
+    'eISS_':    'eIssues',
+    'IT_':      'IT',
+    'eSPA_':    'eSPA',
+    'eAGREE_':  'eAgreements',
+    'eRPT_':    'eRPT',
+    'TBOX_':    'Toolbox',
+    'eIBC_':    'eIBC',
+    'eSAFETY_': 'eSAFETY',
+    'eCOI_':    'eCOI',
+    'eTRACK_':  'eTRACK',
+    'eIACUC_':  'eIACUC',
+    'ACCT_':    'Accounts',
+    'eIRB_':    'eIRB/eCTRC'
+};
+
+var siteProjectMap = {
+    'eAgreements': 'CHOP Agreements FY17',
+    'eCOI':        'CHOP eCOI FY17',
+    'eIACUC':      'CHOP eIACUC FY17',
+    'eIBC':        'CHOP eIBC FY17',
+    'eIRB/eCTRC':  'CHOP eIRB FY17',
+    'eIssues':     'CHOP eISSUES FY17', 
+    'eSAFETY':     'CHOP eSAFETY FY17',
+    'eSPA':        'CHOP eSPA FY17',
+    'eTRACK':      'CHOP eTRACK FY17',
+    'Toolbox':     'CHOP TBOX FY17',
+}
+
 function getCurrentTabUrl(callback) {
     
     // Query filter to be passed to chrome.tabs.query - see
-    // https://developer.chrome.com/extensions/tabs#method-query
+    // https://developer.chrome.com/extensions/tabs#method-quer,
     var queryInfo = {
 	active: true,
 	currentWindow: true
@@ -50,116 +73,136 @@ function getCurrentTabUrl(callback) {
     // alert(url); // Shows "undefined", because chrome.tabs.query is async.
 }
 
-function getHarvest(URL, params, successFn, errorFn) {
-    
-    // +
-    //'?v=1.0&q=' + encodeURIComponent(searchTerm);
+function httpRequest(operation, URL, params) {
+    return new Promise(function(resolve, reject) {
+	// Standard XHR to load an image
+	var request = new XMLHttpRequest();
+	console.log("HTTP Request for URL " + URL);
+	console.log("HTTP Request PARMS   " + params);
+	request.open(operation, URL);
+	request.setRequestHeader('Content-Type', 'application/json');
+	request.setRequestHeader('Accept', 'application/json');
+	request.responseType = 'json';
 
-    var x = new XMLHttpRequest();
-    
-    x.open('GET', URL);
+	request.onload = function() {
+	    var response = request.response;
+	    if (request.status == 200 || request.status == 201 || (response && response.length>0)) {
+		// If successful, resolve the promise by passing back the request response
+		console.log("RESPONSE OK");
+		resolve(response);
+	    } else {
+		console.log("RESPONSE FAIL " + JSON.stringify(request.status));
+		console.log("RESPONSE FAIL " + JSON.stringify(response));
+		reject(Error("Response fail: " + request.status + " " + request.statusText));		
+	    }
+	    
+	};
+	
+	request.onerror = function() {
+	    // Also deal with the case when the entire request fails to begin with
+	    // This is probably a network error, so reject the promise with an appropriate message
+            reject(Error('There was a network error.'));
+	};
 
-    x.setRequestHeader('Content-Type', 'application/json');
-    x.setRequestHeader('Accept', 'application/json');
-    
-    x.responseType = 'json';
-
-    x.onload = function() {
-	var response = x.response;
-	if (!response || response.length === 0) {
-	    errorFn('No response from Harvest!');
-	    return;
-	} else {
-	    successFn(response);
-	}
-    };
-    x.onerror = function() {
-	errorFn('Network error.');
-    };
-    x.send(params);
-}
-
-function postHarvest(URL, params, successFn, errorFn) {
-
-    var x = new XMLHttpRequest();
-    
-    x.open('POST', URL);
-
-    x.setRequestHeader('Content-Type', 'application/json');
-    x.setRequestHeader('Accept', 'application/json');
-    
-    x.responseType = 'json';
-
-    x.onload = function() {
-	var response = x.response;
-	if (!response || response.length === 0) {
-	    errorFn('No response from Harvest!');
-	    return;
-	} else {
-	    successFn(response);
-	}
-    };
-    x.onerror = function() {
-	errorFn('Network error.');
-    };
-    x.send(params);
+	// Send the request
+	request.send(params);
+    });
 }
 
 function renderStatus(statusText) {
+    console.log(statusText);
     document.getElementById('status').textContent = statusText;
 }
+
+// http://resckapp05d.research.chop.edu/eISSUESDev/CustomLayouts/eIssues/IssueDetails
+
+function getHarvestProjects(response) {
+    
+    var today = new Date();
+
+    return new Promise(function(resolve, reject) {
+
+	var projects = response.projects;
+	
+	var issuePrefix = "eSPA_";
+	
+	var siteName = prefixSiteMap[issuePrefix];
+
+	if(!siteName) {
+	    reject(Error("can't find site for issue prefix " + issuePrefix));
+	} else {
+
+	    var projectName = siteProjectMap[siteName];
+
+	    if(!projectName) {
+		reject(Error("can't find project name for site " + siteName));
+		
+	    } else {
+		
+		var proj = projects.find(function (elt) {
+		    return elt.name==projectName;
+		});
+		
+		if(!proj) {
+		    reject(Error("can't find project for projectName " + projectName));
+		} else {
+	    
+		    var task = proj.tasks.find(function (elt) {
+			return elt.name=="Development";
+		    });
+
+		    if(!task) {
+			reject(Error("can't find development task for projectName " + projectName));
+		    } else {
+			resolve([proj.id, task.id]);
+		    }
+		}
+	    }
+	}
+    });
+}
+
+function getDaily(response) {
+    renderStatus('You are ' + response.user.email);
+    return httpRequest('GET',
+		       'https://badrabbit.harvestapp.com/daily/' +
+		       new Date().getDOY() + '/' +
+		       new Date().getFullYear(),
+		       null);
+}
+
+function addEntry (parms) {
+    var proj_id=parms[0];
+    var task_id=parms[1];
+    console.log(proj_id + "::" + task_id);
+    return httpRequest('POST',
+		       'https://badrabbit.harvestapp.com/daily/add',
+		       JSON.stringify({
+			   "notes": "Add API Test",
+			   "project_id": proj_id,
+			   "task_id": task_id
+		       }));
+}
+
+function logSuccess (response) {
+    console.log("GOT RESPONSE: " + JSON.stringify(response));
+    renderStatus('Added task ' + response.project +
+		 "/" + response.task +
+		 ": " + response.notes);
+};
 
 document.addEventListener('DOMContentLoaded', function(response) {
     getCurrentTabUrl(function(url) {
 	renderStatus('Transmogrifying Harvest Data for ' + url);
-	getHarvest(
-	    'https://badrabbit.harvestapp.com/account/who_am_i',
-	    null,
-	    function(response) {
-		console.log("GOT RESPONSE: " + response);
-		renderStatus('You are ' + response.user.email);
-	    },
-	    function(errorMessage) {
-		renderStatus('Error: ' + errorMessage);
-	    }
-	);
-
-	var monday = new Date("03/15/2017");
-
-	getHarvest(
-	    'https://badrabbit.harvestapp.com/daily/' + monday.getDOY() +'/' + monday.getFullYear(),
-	    null,
-	    function(response) {
-		console.log("GOT RESPONSE: " + JSON.stringify(response));
-	    },
-	    function(errorMessage) {
-		renderStatus('Error: ' + errorMessage);
-	    }
-	);
-
-	// "projects":[{"id":11193369,"name":"CHOP Agreements FY17","billable":true,"code":"",
-	//               "tasks":[{"id":1550045,"name":"Development","billable":true},
-	//               ...
-
-	if(true) {
-	    postHarvest(
-		'https://badrabbit.harvestapp.com/daily/add',
-		JSON.stringify({
-		    "notes": "Test API support",
-		    "project_id": "11193369",
-		    "task_id": "1550045"
-		}),
-		function(response) {
-		    console.log("GOT RESPONSE: " + JSON.stringify(response));
-		},
-		function(errorMessage) {
-		    renderStatus('Error: ' + errorMessage);
-		}
-	    );
-	}
+	httpRequest('GET', 'https://badrabbit.harvestapp.com/account/who_am_i', null)
+	    .then(getDaily)
+	    .then(getHarvestProjects)
+	    .then(addEntry)
+	    .then(logSuccess, function(error) {
+		renderStatus('Error: ' + error.message);
+	    })
     });
 });
-
 
 Date.prototype.isLeapYear = function() {
     var year = this.getFullYear();
